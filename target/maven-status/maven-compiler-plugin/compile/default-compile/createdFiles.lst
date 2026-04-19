@@ -12,6 +12,7 @@ com/mycompany/hotelapp/model/Phong.class
 com/mycompany/hotelapp/view/KhachSanPanel.class
 com/mycompany/hotelapp/dao/KhachSanDAO.class
 com/mycompany/hotelapp/view/KhachSanPanel$1.class
+com/mycompany/hotelapp/constant/AppColors.class
 com/mycompany/hotelapp/controller/ClientHandler.class
 com/mycompany/hotelapp/service/HotelServiceImpl.class
 com/mycompany/hotelapp/dao/PhongDAO.class

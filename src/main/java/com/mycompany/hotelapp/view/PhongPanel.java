@@ -15,7 +15,7 @@ public class PhongPanel extends JPanel {
 
     private JTextField txtMaPhong, txtSoPhong, txtLoai, txtGia;
     private JComboBox<String> cboMaKS;
-    private JButton btnThem, btnXoa, btnLocTheoKS, btnLamMoi;
+    private JButton btnThem, btnXoa, btnLocTheoKS, btnLamMoi, btnSua;
     private JTable table;
     private DefaultTableModel tableModel;
 
@@ -49,13 +49,15 @@ public class PhongPanel extends JPanel {
 
         // --- Button Panel ---
         JPanel btnPanel = new JPanel(new FlowLayout());
-        btnThem      = new JButton(MessageUtil.get("room.button.add"));
-        btnXoa       = new JButton(MessageUtil.get("room.button.delete"));
+        btnThem = new JButton(MessageUtil.get("room.button.add"));
+        btnSua = new JButton(MessageUtil.get("room.button.edit"));
+        btnXoa = new JButton(MessageUtil.get("room.button.delete"));
         btnLocTheoKS = new JButton(MessageUtil.get("room.button.filter"));
-        btnLamMoi    = new JButton(MessageUtil.get("room.button.refresh"));
-        
+        btnLamMoi = new JButton(MessageUtil.get("room.button.refresh"));
+
         btnPanel.add(btnThem);
         btnPanel.add(btnXoa);
+        btnPanel.add(btnSua);
         btnPanel.add(btnLocTheoKS);
         btnPanel.add(btnLamMoi);
 
@@ -65,16 +67,18 @@ public class PhongPanel extends JPanel {
 
         // --- Table ---
         String[] cols = {
-            MessageUtil.get("room.column.id"), 
-            MessageUtil.get("room.column.number"), 
-            MessageUtil.get("room.column.type"), 
-            MessageUtil.get("room.column.price"), 
+            MessageUtil.get("room.column.id"),
+            MessageUtil.get("room.column.number"),
+            MessageUtil.get("room.column.type"),
+            MessageUtil.get("room.column.price"),
             MessageUtil.get("room.column.hotel_id")
         };
-        
+
         tableModel = new DefaultTableModel(cols, 0) {
             @Override
-            public boolean isCellEditable(int r, int c) { return false; }
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
         };
         table = new JTable(tableModel);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -124,10 +128,11 @@ public class PhongPanel extends JPanel {
             int row = table.getSelectedRow();
             if (row >= 0) {
                 txtMaPhong.setText(tableModel.getValueAt(row, 0).toString());
+                txtMaPhong.setEditable(false);
                 txtSoPhong.setText(tableModel.getValueAt(row, 1).toString());
                 txtLoai.setText(tableModel.getValueAt(row, 2).toString());
                 txtGia.setText(tableModel.getValueAt(row, 3).toString());
-                
+
                 String maKS = tableModel.getValueAt(row, 4).toString();
                 for (int i = 0; i < cboMaKS.getItemCount(); i++) {
                     if (cboMaKS.getItemAt(i).startsWith(maKS)) {
@@ -142,23 +147,63 @@ public class PhongPanel extends JPanel {
         btnThem.addActionListener(e -> {
             try {
                 String selectedKS = (String) cboMaKS.getSelectedItem();
-                if (selectedKS == null) return;
-                
+                if (selectedKS == null) {
+                    return;
+                }
+
                 String maKS = selectedKS.split(" - ")[0];
                 Phong p = new Phong(
-                    txtMaPhong.getText().trim(),
-                    txtSoPhong.getText().trim(),
-                    txtLoai.getText().trim(),
-                    Double.parseDouble(txtGia.getText().trim()),
-                    maKS
+                        txtMaPhong.getText().trim(),
+                        txtSoPhong.getText().trim(),
+                        txtLoai.getText().trim(),
+                        Double.parseDouble(txtGia.getText().trim()),
+                        maKS
                 );
-                
+
                 // RMI: Gọi hàm addPhong(p)
                 String result = RMIClientService.getService().addPhong(p);
                 if ("SUCCESS".equals(result)) {
                     JOptionPane.showMessageDialog(this, MessageUtil.get("msg.success.add"));
-                    clearForm(); 
+                    clearForm();
                     loadData();
+                } else {
+                    JOptionPane.showMessageDialog(this, result, MessageUtil.get("msg.dialog.error"), JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (RemoteException | NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, MessageUtil.get("msg.dialog.error") + ": " + ex.getMessage());
+            }
+        });
+
+        // Sửa thông tin phòng bằng RMI
+        btnSua.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row < 0) {
+                JOptionPane.showMessageDialog(this, MessageUtil.get("msg.error.select_room"));
+                return;
+            }
+
+            try {
+                String selectedKS = (String) cboMaKS.getSelectedItem();
+                if (selectedKS == null) {
+                    return;
+                }
+
+                String maKS = selectedKS.split(" - ")[0];
+                // Lấy dữ liệu từ các TextField
+                Phong p = new Phong(
+                        txtMaPhong.getText().trim(),
+                        txtSoPhong.getText().trim(),
+                        txtLoai.getText().trim(),
+                        Double.parseDouble(txtGia.getText().trim()),
+                        maKS
+                );
+
+                // RMI: Gọi hàm updatePhong(p) - Hãy đảm bảo Interface RMI của bạn có hàm này
+                String result = RMIClientService.getService().updatePhong(p);
+
+                if ("SUCCESS".equals(result)) {
+                    JOptionPane.showMessageDialog(this, MessageUtil.get("msg.success.update"));
+                    loadData(); // Tải lại bảng
                 } else {
                     JOptionPane.showMessageDialog(this, result, MessageUtil.get("msg.dialog.error"), JOptionPane.ERROR_MESSAGE);
                 }
@@ -174,22 +219,22 @@ public class PhongPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, MessageUtil.get("msg.error.select_room"));
                 return;
             }
-            
+
             String maPhong = tableModel.getValueAt(row, 0).toString();
             String confirmMsg = MessageFormat.format(MessageUtil.get("msg.confirm.delete"), maPhong);
-            
+
             int confirm = JOptionPane.showConfirmDialog(
-                this, confirmMsg, MessageUtil.get("msg.dialog.confirm"),
-                JOptionPane.YES_NO_OPTION
+                    this, confirmMsg, MessageUtil.get("msg.dialog.confirm"),
+                    JOptionPane.YES_NO_OPTION
             );
-            
+
             if (confirm == JOptionPane.YES_OPTION) {
                 try {
                     // RMI: Gọi hàm deletePhong(maPhong)
                     String result = RMIClientService.getService().deletePhong(maPhong);
                     if ("SUCCESS".equals(result)) {
                         JOptionPane.showMessageDialog(this, MessageUtil.get("msg.success.delete"));
-                        clearForm(); 
+                        clearForm();
                         loadData();
                     } else {
                         JOptionPane.showMessageDialog(this, result, MessageUtil.get("msg.dialog.error"), JOptionPane.ERROR_MESSAGE);
@@ -203,8 +248,10 @@ public class PhongPanel extends JPanel {
         // Lọc theo Khách Sạn bằng RMI
         btnLocTheoKS.addActionListener(e -> {
             String selectedKS = (String) cboMaKS.getSelectedItem();
-            if (selectedKS == null) return;
-            
+            if (selectedKS == null) {
+                return;
+            }
+
             String maKS = selectedKS.split(" - ")[0];
             tableModel.setRowCount(0);
             try {
@@ -222,15 +269,16 @@ public class PhongPanel extends JPanel {
             }
         });
 
-        btnLamMoi.addActionListener(e -> { 
-            clearForm(); 
-            loadData(); 
-            loadKhachSanCombo(); 
+        btnLamMoi.addActionListener(e -> {
+            clearForm();
+            loadData();
+            loadKhachSanCombo();
         });
     }
 
     private void clearForm() {
         txtMaPhong.setText("");
+        txtMaPhong.setEditable(true);
         txtSoPhong.setText("");
         txtLoai.setText("");
         txtGia.setText("");

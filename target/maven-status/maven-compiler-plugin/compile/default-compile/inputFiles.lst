@@ -1,5 +1,6 @@
 /Users/hungvu/NetBeansProjects/HotelApp/src/main/java/com/mycompany/hotelapp/HotelApp.java
 /Users/hungvu/NetBeansProjects/HotelApp/src/main/java/com/mycompany/hotelapp/RMIServer.java
+/Users/hungvu/NetBeansProjects/HotelApp/src/main/java/com/mycompany/hotelapp/constant/AppColors.java
 /Users/hungvu/NetBeansProjects/HotelApp/src/main/java/com/mycompany/hotelapp/constant/AppConstants.java
 /Users/hungvu/NetBeansProjects/HotelApp/src/main/java/com/mycompany/hotelapp/controller/ClientHandler.java
 /Users/hungvu/NetBeansProjects/HotelApp/src/main/java/com/mycompany/hotelapp/dao/KhachSanDAO.java

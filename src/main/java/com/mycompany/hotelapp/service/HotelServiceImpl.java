@@ -11,9 +11,11 @@ import java.util.List;
 
 /**
  * Implementation of the RMI Interface
+ *
  * @author hungvu
  */
 public class HotelServiceImpl extends UnicastRemoteObject implements IHotelService {
+
     private KhachSanDAO ksDAO = new KhachSanDAO();
     private PhongDAO pDAO = new PhongDAO();
 
@@ -21,24 +23,33 @@ public class HotelServiceImpl extends UnicastRemoteObject implements IHotelServi
         super();
     }
 
-    // --- QUẢN LÝ KHÁCH SẠN ---
+    @Override
+    public String updatePhong(Phong p) throws RemoteException {
+        try {
+             pDAO.update(p);  
+             return "SUCCESS";
+        } catch (SQLException e) {
+            throw new RemoteException("Database Error (getAllKS): " + e.getMessage());
+        }
+    }
 
+    // --- QUẢN LÝ KHÁCH SẠN ---
     @Override
     public List<KhachSan> getAllKhachSan() throws RemoteException {
-        try { 
-            return ksDAO.getAll(); 
-        } catch (SQLException e) { 
-            throw new RemoteException("Database Error (getAllKS): " + e.getMessage()); 
+        try {
+            return ksDAO.getAll();
+        } catch (SQLException e) {
+            throw new RemoteException("Database Error (getAllKS): " + e.getMessage());
         }
     }
 
     @Override
     public String addKhachSan(KhachSan ks) throws RemoteException {
-        try { 
-            ksDAO.add(ks); 
-            return "SUCCESS"; 
-        } catch (SQLException e) { 
-            return "ADD_ERROR: " + e.getMessage(); 
+        try {
+            ksDAO.add(ks);
+            return "SUCCESS";
+        } catch (SQLException e) {
+            return "ADD_ERROR: " + e.getMessage();
         }
     }
 
@@ -61,13 +72,12 @@ public class HotelServiceImpl extends UnicastRemoteObject implements IHotelServi
             }
             ksDAO.delete(maKS);
             return "SUCCESS";
-        } catch (SQLException e) { 
-            return "DELETE_ERROR: " + e.getMessage(); 
+        } catch (SQLException e) {
+            return "DELETE_ERROR: " + e.getMessage();
         }
     }
 
     // --- QUẢN LÝ PHÒNG ---
-
     @Override
     public List<Phong> getAllPhong() throws RemoteException {
         try {

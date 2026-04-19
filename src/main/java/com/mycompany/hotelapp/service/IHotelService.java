@@ -26,4 +26,5 @@ public interface IHotelService extends Remote {
     List<Phong> getPhongByKhachSan(String maKS) throws RemoteException;
     String addPhong(Phong p) throws RemoteException;
     String deletePhong(String maPhong) throws RemoteException;
+    String updatePhong(Phong p) throws RemoteException;
 }
