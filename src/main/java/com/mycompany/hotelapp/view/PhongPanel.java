@@ -1,9 +1,12 @@
 package com.mycompany.hotelapp.view;
 
+import com.mycompany.hotelapp.constant.AppColors;
 import com.mycompany.hotelapp.model.KhachSan;
 import com.mycompany.hotelapp.model.Phong;
 import com.mycompany.hotelapp.service.RMIClientService;
 import com.mycompany.hotelapp.utils.MessageUtil;
+import static com.mycompany.hotelapp.utils.UIStyleUtil.applyButtonStyle;
+import static com.mycompany.hotelapp.utils.UIStyleUtil.applyLabelStyle;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -20,52 +23,71 @@ public class PhongPanel extends JPanel {
     private DefaultTableModel tableModel;
 
     public PhongPanel() {
+        setBackground(AppColors.BACKGROUND);
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         // --- Form Panel ---
-        JPanel formPanel = new JPanel(new GridLayout(5, 2, 5, 5));
-        formPanel.setBorder(BorderFactory.createTitledBorder(MessageUtil.get("room.form.title")));
+        JPanel formPanel = new JPanel(new GridLayout(5, 2, 10, 10));
+        formPanel.setBackground(Color.WHITE);
+        formPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder(null, MessageUtil.get("room.form.title"), 0, 0, new Font("Segoe UI", Font.BOLD, 14), AppColors.PRIMARY),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
 
-        formPanel.add(new JLabel(MessageUtil.get("room.label.id")));
-        txtMaPhong = new JTextField();
-        formPanel.add(txtMaPhong);
+        // Label & Field setup
+        JLabel lblId = new JLabel(MessageUtil.get("room.label.id"));
+        applyLabelStyle(lblId);
+        formPanel.add(lblId);
+        formPanel.add(txtMaPhong = new JTextField());
 
-        formPanel.add(new JLabel(MessageUtil.get("room.label.number")));
-        txtSoPhong = new JTextField();
-        formPanel.add(txtSoPhong);
+        JLabel lblNo = new JLabel(MessageUtil.get("room.label.number"));
+        applyLabelStyle(lblNo);
+        formPanel.add(lblNo);
+        formPanel.add(txtSoPhong = new JTextField());
 
-        formPanel.add(new JLabel(MessageUtil.get("room.label.type")));
-        txtLoai = new JTextField();
-        formPanel.add(txtLoai);
+        JLabel lblType = new JLabel(MessageUtil.get("room.label.type"));
+        applyLabelStyle(lblType);
+        formPanel.add(lblType);
+        formPanel.add(txtLoai = new JTextField());
 
-        formPanel.add(new JLabel(MessageUtil.get("room.label.price")));
-        txtGia = new JTextField();
-        formPanel.add(txtGia);
+        JLabel lblPrice = new JLabel(MessageUtil.get("room.label.price"));
+        applyLabelStyle(lblPrice);
+        formPanel.add(lblPrice);
+        formPanel.add(txtGia = new JTextField());
 
-        formPanel.add(new JLabel(MessageUtil.get("room.label.hotel")));
-        cboMaKS = new JComboBox<>();
-        formPanel.add(cboMaKS);
+        JLabel lblHotel = new JLabel(MessageUtil.get("room.label.hotel"));
+        applyLabelStyle(lblHotel);
+        formPanel.add(lblHotel);
+        formPanel.add(cboMaKS = new JComboBox<>());
 
         // --- Button Panel ---
-        JPanel btnPanel = new JPanel(new FlowLayout());
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        btnPanel.setOpaque(false);
+
         btnThem = new JButton(MessageUtil.get("room.button.add"));
         btnSua = new JButton(MessageUtil.get("room.button.edit"));
         btnXoa = new JButton(MessageUtil.get("room.button.delete"));
         btnLocTheoKS = new JButton(MessageUtil.get("room.button.filter"));
         btnLamMoi = new JButton(MessageUtil.get("room.button.refresh"));
 
+        applyButtonStyle(btnThem, new Color(46, 204, 113));
+        applyButtonStyle(btnSua, new Color(241, 196, 15));
+        applyButtonStyle(btnXoa, new Color(231, 76, 60));
+        applyButtonStyle(btnLocTheoKS, AppColors.PRIMARY);
+        applyButtonStyle(btnLamMoi, AppColors.SECONDARY);
+
         btnPanel.add(btnThem);
-        btnPanel.add(btnXoa);
         btnPanel.add(btnSua);
+        btnPanel.add(btnXoa);
         btnPanel.add(btnLocTheoKS);
         btnPanel.add(btnLamMoi);
 
         JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
         topPanel.add(formPanel, BorderLayout.CENTER);
         topPanel.add(btnPanel, BorderLayout.SOUTH);
 
-        // --- Table ---
         String[] cols = {
             MessageUtil.get("room.column.id"),
             MessageUtil.get("room.column.number"),
@@ -73,7 +95,6 @@ public class PhongPanel extends JPanel {
             MessageUtil.get("room.column.price"),
             MessageUtil.get("room.column.hotel_id")
         };
-
         tableModel = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int r, int c) {
@@ -81,7 +102,15 @@ public class PhongPanel extends JPanel {
             }
         };
         table = new JTable(tableModel);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setRowHeight(30);
+        table.setSelectionBackground(new Color(52, 152, 219, 100)); // Màu chọn hàng nhẹ
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+
+        // Style Header của Table
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        table.getTableHeader().setBackground(AppColors.SECONDARY);
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.getTableHeader().setPreferredSize(new Dimension(0, 35));
 
         add(topPanel, BorderLayout.NORTH);
         add(new JScrollPane(table), BorderLayout.CENTER);

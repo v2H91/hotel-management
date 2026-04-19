@@ -12,6 +12,7 @@
 /Users/hungvu/NetBeansProjects/HotelApp/src/main/java/com/mycompany/hotelapp/service/IHotelService.java
 /Users/hungvu/NetBeansProjects/HotelApp/src/main/java/com/mycompany/hotelapp/service/RMIClientService.java
 /Users/hungvu/NetBeansProjects/HotelApp/src/main/java/com/mycompany/hotelapp/utils/MessageUtil.java
+/Users/hungvu/NetBeansProjects/HotelApp/src/main/java/com/mycompany/hotelapp/utils/UIStyleUtil.java
 /Users/hungvu/NetBeansProjects/HotelApp/src/main/java/com/mycompany/hotelapp/view/KhachSanPanel.java
 /Users/hungvu/NetBeansProjects/HotelApp/src/main/java/com/mycompany/hotelapp/view/MainFrame.java
 /Users/hungvu/NetBeansProjects/HotelApp/src/main/java/com/mycompany/hotelapp/view/PhongPanel.java

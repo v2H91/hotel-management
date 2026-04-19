@@ -39,7 +39,7 @@ public class MainFrame extends JFrame {
         
         // Thêm các Panel của bạn vào đây
         tabs.addTab(" Quản lý Phòng ", new PhongPanel()); 
-        tabs.addTab(" Khách Sạn ", new JPanel()); // Thay bằng KhachSanPanel của bạn
+        tabs.addTab(" Khách Sạn ", new KhachSanPanel()); // Thay bằng KhachSanPanel của bạn
         
         add(tabs, BorderLayout.CENTER);
 

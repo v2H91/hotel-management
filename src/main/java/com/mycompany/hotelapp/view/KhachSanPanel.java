@@ -1,8 +1,11 @@
 package com.mycompany.hotelapp.view;
 
+import com.mycompany.hotelapp.constant.AppColors;
 import com.mycompany.hotelapp.model.KhachSan;
 import com.mycompany.hotelapp.service.RMIClientService;
 import com.mycompany.hotelapp.utils.MessageUtil;
+import static com.mycompany.hotelapp.utils.UIStyleUtil.applyButtonStyle;
+import static com.mycompany.hotelapp.utils.UIStyleUtil.applyLabelStyle;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -18,59 +21,76 @@ public class KhachSanPanel extends JPanel {
     private DefaultTableModel tableModel;
 
     public KhachSanPanel() {
+        setBackground(AppColors.BACKGROUND);
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         // --- Form Panel ---
-        JPanel formPanel = new JPanel(new GridLayout(4, 2, 5, 5));
-        formPanel.setBorder(BorderFactory.createTitledBorder(MessageUtil.get("hotel.form.title")));
+        JPanel formPanel = new JPanel(new GridLayout(4, 2, 10, 10));
+        formPanel.setBackground(Color.WHITE);
+        formPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder(null, MessageUtil.get("hotel.form.title"), 0, 0, new Font("Segoe UI", Font.BOLD, 14), AppColors.PRIMARY),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
 
-        formPanel.add(new JLabel(MessageUtil.get("hotel.label.id")));
-        txtMaKS = new JTextField();
-        formPanel.add(txtMaKS);
+        // Thêm các trường với Style thống nhất
+        String[] labels = {"hotel.column.id", "hotel.column.name", "hotel.column.stars", "hotel.column.description"};
+        JTextField[] fields = {txtMaKS = new JTextField(), txtTenKS = new JTextField(), txtSoSao = new JTextField(), txtMoTa = new JTextField()};
 
-        formPanel.add(new JLabel(MessageUtil.get("hotel.label.name")));
-        txtTenKS = new JTextField();
-        formPanel.add(txtTenKS);
-
-        formPanel.add(new JLabel(MessageUtil.get("hotel.label.stars")));
-        txtSoSao = new JTextField();
-        formPanel.add(txtSoSao);
-
-        formPanel.add(new JLabel(MessageUtil.get("hotel.label.description")));
-        txtMoTa = new JTextField();
-        formPanel.add(txtMoTa);
+        for (int i = 0; i < labels.length; i++) {
+            JLabel lbl = new JLabel(MessageUtil.get(labels[i]));
+            applyLabelStyle(lbl);
+            formPanel.add(lbl);
+            formPanel.add(fields[i]);
+        }
 
         // --- Button Panel ---
-        JPanel btnPanel = new JPanel(new FlowLayout());
-        btnThem   = new JButton(MessageUtil.get("hotel.button.add"));
-        btnSua    = new JButton(MessageUtil.get("hotel.button.edit"));
-        btnXoa    = new JButton(MessageUtil.get("hotel.button.delete"));
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        btnPanel.setOpaque(false);
+
+        btnThem = new JButton(MessageUtil.get("hotel.button.add"));
+        btnSua = new JButton(MessageUtil.get("hotel.button.edit"));
+        btnXoa = new JButton(MessageUtil.get("hotel.button.delete"));
         btnLamMoi = new JButton(MessageUtil.get("hotel.button.refresh"));
-        
+
+        applyButtonStyle(btnThem, new Color(46, 204, 113)); // Green
+        applyButtonStyle(btnSua, new Color(241, 196, 15));  // Yellow
+        applyButtonStyle(btnXoa, new Color(231, 76, 60));   // Red
+        applyButtonStyle(btnLamMoi, AppColors.SECONDARY);   // Dark Blue
+
         btnPanel.add(btnThem);
         btnPanel.add(btnSua);
         btnPanel.add(btnXoa);
         btnPanel.add(btnLamMoi);
 
         JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
         topPanel.add(formPanel, BorderLayout.CENTER);
         topPanel.add(btnPanel, BorderLayout.SOUTH);
 
-        // --- Table ---
         String[] columns = {
-            MessageUtil.get("hotel.column.id"), 
-            MessageUtil.get("hotel.column.name"), 
-            MessageUtil.get("hotel.column.stars"), 
+            MessageUtil.get("hotel.column.id"),
+            MessageUtil.get("hotel.column.name"),
+            MessageUtil.get("hotel.column.stars"),
             MessageUtil.get("hotel.column.description")
         };
-        
+
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(int row, int col) { return false; }
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
         };
         table = new JTable(tableModel);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setRowHeight(30);
+        table.setSelectionBackground(new Color(52, 152, 219, 100)); // Màu chọn hàng nhẹ
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+
+        // Style Header của Table
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        table.getTableHeader().setBackground(AppColors.SECONDARY);
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.getTableHeader().setPreferredSize(new Dimension(0, 35));
 
         add(topPanel, BorderLayout.NORTH);
         add(new JScrollPane(table), BorderLayout.CENTER);
@@ -110,13 +130,16 @@ public class KhachSanPanel extends JPanel {
 
         // Nút Thêm (RMI)
         btnThem.addActionListener(e -> {
-            if (!validateForm()) return;
+            if (!validateForm()) {
+                return;
+            }
             try {
                 KhachSan ks = getFormData();
                 String result = RMIClientService.getService().addKhachSan(ks);
                 if ("SUCCESS".equals(result)) {
                     JOptionPane.showMessageDialog(this, MessageUtil.get("msg.success.add"));
-                    clearForm(); loadData();
+                    clearForm();
+                    loadData();
                 } else {
                     JOptionPane.showMessageDialog(this, result, MessageUtil.get("msg.dialog.error"), JOptionPane.ERROR_MESSAGE);
                 }
@@ -131,13 +154,16 @@ public class KhachSanPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, MessageUtil.get("msg.error.select_hotel"));
                 return;
             }
-            if (!validateForm()) return;
+            if (!validateForm()) {
+                return;
+            }
             try {
                 KhachSan ks = getFormData();
                 String result = RMIClientService.getService().updateKhachSan(ks);
                 if ("SUCCESS".equals(result)) {
                     JOptionPane.showMessageDialog(this, MessageUtil.get("msg.success.edit"));
-                    clearForm(); loadData();
+                    clearForm();
+                    loadData();
                 } else {
                     JOptionPane.showMessageDialog(this, result, MessageUtil.get("msg.dialog.error"), JOptionPane.ERROR_MESSAGE);
                 }
@@ -154,23 +180,24 @@ public class KhachSanPanel extends JPanel {
             }
             String maKS = txtMaKS.getText();
             String confirmMsg = MessageFormat.format(MessageUtil.get("msg.confirm.delete_hotel"), maKS);
-            
+
             int confirm = JOptionPane.showConfirmDialog(
-                this, confirmMsg, MessageUtil.get("msg.dialog.confirm"),
-                JOptionPane.YES_NO_OPTION
+                    this, confirmMsg, MessageUtil.get("msg.dialog.confirm"),
+                    JOptionPane.YES_NO_OPTION
             );
-            
+
             if (confirm == JOptionPane.YES_OPTION) {
                 try {
                     String result = RMIClientService.getService().deleteKhachSan(maKS);
                     if ("SUCCESS".equals(result)) {
                         JOptionPane.showMessageDialog(this, MessageUtil.get("msg.success.delete"));
-                        clearForm(); loadData();
+                        clearForm();
+                        loadData();
                     } else if ("FAIL_HAS_ROOM".equals(result)) {
-                        JOptionPane.showMessageDialog(this, 
-                            MessageUtil.get("msg.error.has_room"),
-                            MessageUtil.get("msg.dialog.error"), 
-                            JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this,
+                                MessageUtil.get("msg.error.has_room"),
+                                MessageUtil.get("msg.dialog.error"),
+                                JOptionPane.ERROR_MESSAGE);
                     } else {
                         JOptionPane.showMessageDialog(this, result, MessageUtil.get("msg.dialog.error"), JOptionPane.ERROR_MESSAGE);
                     }
@@ -180,15 +207,18 @@ public class KhachSanPanel extends JPanel {
             }
         });
 
-        btnLamMoi.addActionListener(e -> { clearForm(); loadData(); });
+        btnLamMoi.addActionListener(e -> {
+            clearForm();
+            loadData();
+        });
     }
 
     private KhachSan getFormData() {
         return new KhachSan(
-            txtMaKS.getText().trim(),
-            txtTenKS.getText().trim(),
-            Integer.parseInt(txtSoSao.getText().trim()),
-            txtMoTa.getText().trim()
+                txtMaKS.getText().trim(),
+                txtTenKS.getText().trim(),
+                Integer.parseInt(txtSoSao.getText().trim()),
+                txtMoTa.getText().trim()
         );
     }
 
@@ -207,8 +237,10 @@ public class KhachSanPanel extends JPanel {
     }
 
     private void clearForm() {
-        txtMaKS.setText(""); txtTenKS.setText("");
-        txtSoSao.setText(""); txtMoTa.setText("");
+        txtMaKS.setText("");
+        txtTenKS.setText("");
+        txtSoSao.setText("");
+        txtMoTa.setText("");
         txtMaKS.setEditable(true);
         table.clearSelection();
     }
